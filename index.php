@@ -1,51 +1,4 @@
-<?php
-session_start();
-
-error_reporting(E_ERROR | E_PARSE);
-if (fopen('./php/install.php', 'r') != null) {
-  exit("'install.php' still exists! Delete it to proceed!");
-}
-
-// STORE
-
-$store_csv = "./data/stores.csv";
-$store_file = fopen($store_csv, "r");
-
-
-while (($store_row = fgetcsv($store_file)) !== FALSE) {
-  // Read the data
-  $temp1 = substr($store_row[3], 0, 4);
-  if ($temp1 == '2021') {
-    $storeCreatedDate[] = array($store_row[0], $store_row[1], trim($store_row[3]));
-  }
-
-  if ($store_row[4] === 'TRUE') {
-    $featureStoreArray[] = array($store_row[0], trim($store_row[1]));
-  }
-}
-$featureStore = array_splice($featureStoreArray, 0, 10, true);
-
-
-
-function date_compare($a, $b)
-{
-  $time1 = strtotime($a[2]);
-  $time2 = strtotime($b[2]);
-  if ($time1 < $time2)
-    return 1;
-  else if ($time1 > $time2)
-    return -1;
-  else
-    return 0;
-}
-
-
-usort($storeCreatedDate, "date_compare");
-$newStore = array_splice($storeCreatedDate, 0, 10, true);
-
-fclose($store_file);
-
-?>
+<?php require './php/mall_page.php';?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -72,21 +25,33 @@ fclose($store_file);
       <ul>
         <a href="templates/about.php">
           <li>About us</li>
-        </a> <a href="templates/fees.html">
+        </a> <a href="templates/fees.php">
           <li>Fees</li>
         </a> <a href="templates/account/account.php">
           <li>Account</li>
-        </a> <a href="templates/browse-menu.html">
+        </a> <a href="templates/browse-menu.php">
           <li>Browse</li>
-        </a> <a href="templates/faq.html">
+        </a> <a href="templates/faq.php">
           <li>FAQs</li>
-        </a> <a href="templates/contact.html">
+        </a> <a href="templates/contact.php">
           <li>Contact</li>
         </a> <a href="templates/login-form.php">
           <li>Sign in</li>
-        </a> <a href="templates/cart.php" id="cart">
-          <li>Cart</li>
-        </a>
+        </a> 
+        <?php 
+            $cartNum = 0;
+            // if cart already exists
+            if (isset($_SESSION['cart']))
+            {
+                foreach ($_SESSION['cart'] as &$subCart) {
+                    $cartNum += $subCart[3];
+                }
+                echo '<a href="cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+            // if the array is empty
+            } else {
+                echo '<a href="cart.php" ><li>Cart</li></a>';
+            }
+        ?>
       </ul>
     </nav>
   </header>
@@ -114,33 +79,7 @@ fclose($store_file);
       </div>
     </div>
   </section>
-  <?php
 
-  // PRODUCT
-
-  $product_csv = "./data/products.csv";
-  $product_file = fopen($product_csv, "r");
-
-
-  while (($product_row = fgetcsv($product_file)) !== FALSE) {
-    // Read the data
-    $temp = substr($product_row[3], 0, 4);
-    if ($temp == '2021') {
-      $productCreatedDate[] = array($product_row[0], $product_row[1], trim($product_row[3]));
-    }
-
-    if ($product_row[5] === 'TRUE') {
-      $featureProductArray[] = array($product_row[0], trim($product_row[1]));
-    }
-  }
-  $featureProduct = array_splice($featureProductArray, 0, 10, true);
-
-  usort($productCreatedDate, "date_compare");
-  $newProduct = array_splice($productCreatedDate, 0, 10, true);
-
-  fclose($product_file);
-
-  ?>
 
   <!-- End new stores -->
   <!-- New product -->
@@ -238,12 +177,12 @@ fclose($store_file);
         <!-- Quick Link -->
         <div class="grid-item inner-grid-container">
           <div class="grid-item"> <a href="templates/about.php">About Us</a> </div>
-          <div class="grid-item"> <a href="templates/fees.html">Fees</a> </div>
-          <div class="grid-item"> <a href="templates/browse-menu.html">Browse</a> </div>
+          <div class="grid-item"> <a href="templates/fees.php">Fees</a> </div>
+          <div class="grid-item"> <a href="templates/browse-menu.php">Browse</a> </div>
           <div class="grid-item"> <a href="templates/term_of_services.php">Term of Service</a> </div>
           <div class="grid-item"> <a href="templates/account/account.php">Account</a> </div>
-          <div class="grid-item"><a href="templates/faq.html">FAQs</a></div>
-          <div class="grid-item"> <a href="templates/contact.html">Contact</a> </div>
+          <div class="grid-item"><a href="templates/faq.php">FAQs</a></div>
+          <div class="grid-item"> <a href="templates/contact.php">Contact</a> </div>
           <div class="grid-item"> <a href="templates/privacy_policies.php">Privacy Policy</a> </div>
         </div>
         <!-- Social Link -->

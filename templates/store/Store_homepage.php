@@ -1,56 +1,4 @@
-<?php
-session_start();
-
-error_reporting(E_ERROR | E_PARSE);
-if (fopen('../../php/install.php', 'r') != null) {
-    exit("'install.php' still exists! Delete it to proceed!");
-}
-
-// PRODUCT
-
-$product_csv = "../../data/products.csv";
-$product_file = fopen($product_csv, "r");
-
-
-while (($product_row = fgetcsv($product_file)) !== FALSE) {
-    // Read the data
-    $temp = substr($product_row[3], 0, 4);
-    if ($temp == '2021') {
-        $productCreatedDate[] = array($product_row[1], trim($product_row[3]));
-    }
-
-    if ($product_row[6] === 'TRUE') {
-        $featureProduct[] = trim($product_row[1]);
-    }
-}
-
-function date_compare($a, $b)
-{
-    $time1 = strtotime($a[1]);
-    $time2 = strtotime($b[1]);
-    if ($time1 < $time2)
-        return 1;
-    else if ($time1 > $time2)
-        return -1;
-    else
-        return 0;
-}
-
-
-usort($productCreatedDate, "date_compare");
-$sliceArrayProduct = array_splice($productCreatedDate, 0, 5, true);
-
-
-$sliceArrayProduct = array_map(function ($x) {
-    return $x[0];
-}, $sliceArrayProduct);
-
-$newProduct = array_values($sliceArrayProduct);
-
-fclose($product_file);
-
-
-?>
+<?php require '../../php/store_home_require.php';?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -78,58 +26,122 @@ fclose($product_file);
             <ul>
                 <a href="../about.php">
                     <li>About us</li>
-                </a> <a href="../fees.html">
+                </a> <a href="../fees.php">
                     <li>Fees</li>
                 </a> <a href="../account/account.php">
                     <li>Account</li>
-                </a> <a href="../browse-menu.html">
+                </a> <a href="../browse-menu.php">
                     <li>Browse</li>
-                </a> <a href="../faq.html">
+                </a> <a href="../faq.php">
                     <li>FAQs</li>
-                </a> <a href="../contact.html">
+                </a> <a href="../contact.php">
                     <li>Contact</li>
                 </a> <a href="../login-form.php">
                     <li>Sign in</li>
-                </a> <a href="../cart.php" id="cart">
-                    <li>Cart</li>
-                </a>
+                </a> 
+                <?php 
+                    $cartNum = 0;
+                    // if cart already exists
+                    if (isset($_SESSION['cart']))
+                    {
+                        foreach ($_SESSION['cart'] as &$subCart) {
+                            $cartNum += $subCart[3];
+                        }
+                        echo '<a href="cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+                    // if the array is empty
+                    } else {
+                        echo '<a href="cart.php" ><li>Cart</li></a>';
+                    }
+                ?>
             </ul>
         </nav>
     </header>
     <!-- End header -->
+
+    <section id="products">
+        <div class="container">
+            <div class="products-header">
+                <h2>
+                    <?php
+                    echo $product_store_name[0];
+                    ?>
+                </h2>
+            </div>
+        </div>
+    </section>
+
     <!-- Feature product -->
 
-    <?php
-    echo '<section id="products">';
-    echo '<h2 class="title">Featured Product</h2>';
-    echo '<div class="container">';
-    echo '<div class="product-container">';
-    echo '<div class="product-card">';
-    echo '<div class="product-name">';
-    echo 'a';
-    echo '</div>';
-    echo '</div>';
-    echo '</div>';
-    echo '</div>';
-    echo '</section>';
-    ?>
+    <section id="products">
+        <div class="container">
+            <div class="products-header">
+                <h2>Feature Products</h2>
+            </div>
+            <!-- Product card row 1 -->
+            <div class="product-container" id="product-slider" style="margin-bottom: 20px">
+                <?php
+                if (empty($featureProduct)) {
+                    echo 'This store does not have any feature product';
+                } else {
+                    for ($i = 0; $i < count($featureProduct); $i++) {
+                        echo '<div class="product-card">';
+                        echo '<section class="ribbon">';
+                        echo '<div class="store-nike">';
+                        echo '<a href="">';
+                        echo '<img src="https://i.imgur.com/ljKPWN6.jpg" alt="logo-nike" /></a>';
+                        echo '</div>';
+                        echo '</section>';
+                        echo '<img src="https://i.imgur.com/gBfzpkA.jpg" alt="product1" class="product-icon" />';
+                        echo '<div class="product-name">';
+                        echo  $featureProduct[$i][0];
+                        echo '</div>';
+                        echo '<a href="' . '../product/Product_homepage.php?id=' . $featureProduct[$i][1] . '"';
+                        echo 'class="button">Buy now</a>';
+                        echo '</div>';
+                    }
+                }
 
-    <!-- New Product -->
+                ?>
+            </div>
+            <!-- End product card row 1-->
+        </div>
+    </section>
 
-    <?php
-    echo '<section id="products">';
-    echo '<h2 class="title">New Product</h2>';
-    echo '<div class="container">';
-    echo '<div class="product-container">';
-    echo '<div class="product-card">';
-    echo '<div class="product-name">';
-    echo 'a';
-    echo '</div>';
-    echo '</div>';
-    echo '</div>';
-    echo '</div>';
-    echo '</section>';
-    ?>
+    <!-- New product -->
+    <section id="products">
+        <div class="container">
+            <div class="products-header">
+                <h2>New Products</h2>
+            </div>
+            <!-- Product card row 1 -->
+            <div class="product-container" id="product-slider">
+                <?php
+                if (empty($newProduct)) {
+                    echo 'This store does not have any new product';
+                } else {
+                    for ($i = 0; $i < count($newProduct); $i++) {
+                        echo '<div class="product-card">';
+                        echo '<section class="ribbon">';
+                        echo '<div class="store-nike">';
+                        echo '<a href="">';
+                        echo '<img src="https://i.imgur.com/ljKPWN6.jpg" alt="logo-nike" /></a>';
+                        echo '</div>';
+                        echo '</section>';
+                        echo '<img src="https://i.imgur.com/gBfzpkA.jpg" alt="product1" class="product-icon" />';
+                        echo '<div class="product-name">';
+                        echo $newProduct[$i][1];
+                        echo '</div>';
+                        echo '<a href="' . '../product/Product_homepage.php?id=' . $newProduct[$i][0] . '"';
+                        echo 'class="button">Buy now</a>';
+                        echo '</div>';
+                    }
+                }
+                ?>
+            </div>
+            <!-- End product card row 1-->
+        </div>
+    </section>
+    <!-- End new product -->
 
     <!-- Footer -->
     <footer class="page-footer">
@@ -140,12 +152,12 @@ fclose($product_file);
                 <!-- Quick Link -->
                 <div class="grid-item inner-grid-container">
                     <div class="grid-item"> <a href="../about.php">About Us</a> </div>
-                    <div class="grid-item"> <a href="../fees.html">Fees</a> </div>
-                    <div class="grid-item"> <a href="../browse-menu.html">Browse</a> </div>
+                    <div class="grid-item"> <a href="../fees.php">Fees</a> </div>
+                    <div class="grid-item"> <a href="../browse-menu.php">Browse</a> </div>
                     <div class="grid-item"> <a href="../term_of_services.php">Term of Service</a> </div>
                     <div class="grid-item"> <a href="../account/account.php">Account</a> </div>
-                    <div class="grid-item"><a href="../faq.html">FAQs</a></div>
-                    <div class="grid-item"> <a href="../contact.html">Contact</a> </div>
+                    <div class="grid-item"><a href="../faq.php">FAQs</a></div>
+                    <div class="grid-item"> <a href="../contact.php">Contact</a> </div>
                     <div class="grid-item"> <a href="../privacy_policies.php">Privacy Policy</a> </div>
                 </div>
                 <!-- Social Link -->

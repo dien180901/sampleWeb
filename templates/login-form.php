@@ -1,73 +1,4 @@
- <?php
-ob_start();
-session_start();
-function encrypt_decrypt($string, $action = 'encrypt')
-{
-  $encrypt_method = "AES-256-CBC";
-  $secret_key = 'AA74CDCC2BBRT935136HH7B63C27'; // user define private key
-  $secret_iv = '5fgf5HJ5g27'; // user define secret key
-  $key = hash('sha256', $secret_key);
-  $iv = substr(hash('sha256', $secret_iv), 0, 16); // sha256 is hash_hmac_algo
-  if ($action == 'encrypt') {
-    $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
-    $output = base64_encode($output);
-  } else if ($action == 'decrypt') {
-    $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
-  }
-  return $output;
-}
-error_reporting(E_ERROR | E_PARSE);
-if (fopen('../php/install.php', 'r') != null) {
-  exit("'install.php' still exists! Delete it to proceed!");
-}
-
-// echo '<h2>log in values</h2>';
-// echo '<pre>';
-// echo $adminUsername;
-// echo $adminPass;
-// echo '</pre>';
-
-// echo '<h2>$_SESSION values</h2>';
-// echo '<pre>';
-// print_r($_SESSION);
-// echo '</pre>';
-// echo '<hr>';
-
-// echo '<h2>$_POST values</h2>';
-// echo '<pre>';
-// print_r($_POST);
-// echo '</pre>';
-// echo '<hr>';
-
-if (isset($_POST['log-in-hit'])) {
-    $adminUsername = "";
-	$adminPass = "";
-	$datafile = fopen('../php/data.txt', 'r');
-	if ($datafile) {
-		$adminUsername = trim(fgets($datafile));
-		$adminPass = trim(encrypt_decrypt(fgets($datafile), 'decrypt'));
-	} else {
-		exit("Cannot find data.txt!");
-	}
-
-	if (isset($_POST['email']) && $_POST['email'] == $adminUsername && isset($_POST['pwd']) && $_POST['pwd'] == $adminPass) {
-	$_SESSION['admin_username'] = $_POST['email'];
-		unset($_POST);
-		header('location: CMS.php');
-	} 
-	else if (isset($_POST['email']) && $_POST['email'] == $_SESSION['sign-up-email'] && isset($_POST['pwd']) && $_POST['pwd'] == $_SESSION['sign-up-confirm-password']) {
-		$_SESSION['user'] = $_POST['email'];
-		unset($_SESSION['admin_username']);
-		unset($_SESSION['sign-up-email']);
-		unset($_SESSION['sign-up-confirm-password']);
-    } 
-	else {
-		unset($_POST);
-      	header('location: account/account.php');
-    }
-} 
-  fclose($datafile);
-?>
+<?php require '../php/login_require.php' ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -96,30 +27,27 @@ if (isset($_POST['log-in-hit'])) {
       <input type="checkbox" id="menuToggle" />
       <label for="menuToggle" class="menu-icon"><i class="fa fa-bars"></i></label>
       <ul>
-        <a href="about.php">
-          <li>About us</li>
-        </a>
-        <a href="fees.html">
-          <li>Fees</li>
-        </a>
-        <a href="account/account.html">
-          <li>Account</li>
-        </a>
-        <a href="browse-menu.html">
-          <li>Browse</li>
-        </a>
-        <a href="faq.html">
-          <li>FAQs</li>
-        </a>
-        <a href="contact.html">
-          <li>Contact</li>
-        </a>
-        <a href="login-form.php">
-          <li>Sign in</li>
-        </a>
-        <a href="cart.php" id="cart">
-          <li>Cart</li>
-        </a>
+          <a href="about.php"><li>About us</li></a>
+          <a href="fees.php"><li>Fees</li></a>
+          <a href="account/account.php"><li>Account</li></a>
+          <a href="browse-menu.php"><li>Browse</li></a>
+          <a href="faq.php"><li>FAQs</li></a>
+          <a href="contact.php"><li>Contact</li></a>
+          <a href="login-form.php"><li>Sign in</li></a>
+        <?php 
+            $cartNum = 0;
+            // if cart already exists
+            if (isset($_SESSION['cart']))
+            {
+                foreach ($_SESSION['cart'] as &$subCart) {
+                    $cartNum += $subCart[3];
+                }
+                echo '<a href="cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+            // if the array is empty
+            } else {
+                echo '<a href="cart.php" ><li>Cart</li></a>';
+            }
+        ?>
       </ul>
     </nav>
   </header>
@@ -164,7 +92,7 @@ if (isset($_POST['log-in-hit'])) {
           <a href="sign-up-form.php">Register</a>
         </div>
         <div class="password-reset">
-          <a href="forgot-password.html">Forgot your password?</a>
+          <a href="">Forgot your password?</a>
         </div>
       </form>
     </div>
@@ -184,18 +112,18 @@ if (isset($_POST['log-in-hit'])) {
             <a href="about.php">About Us</a>
           </div>
           <div class="grid-item">
-            <a href="fees.html">Fees</a>
+            <a href="fees.php">Fees</a>
           </div>
-          <div class="grid-item"><a href="browse-menu.html">Browse</a></div>
+          <div class="grid-item"><a href="browse-menu.php">Browse</a></div>
           <div class="grid-item">
             <a href="term_of_services.php">Term of Service</a>
           </div>
           <div class="grid-item">
-            <a href="account/account.html">Account</a>
+            <a href="account/account.php">Account</a>
           </div>
-          <div class="grid-item"><a href="faq.html">FAQs</a></div>
+          <div class="grid-item"><a href="faq.php">FAQs</a></div>
           <div class="grid-item">
-            <a href="contact.html">Contact</a>
+            <a href="contact.php">Contact</a>
           </div>
           <div class="grid-item">
             <a href="privacy_policies.php">Privacy Policy</a>

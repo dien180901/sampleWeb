@@ -1,43 +1,4 @@
-<?php
-session_start();
-error_reporting(E_ERROR | E_PARSE);
-if (fopen('../php/install.php', 'r') != null) {
-  exit("'install.php' still exists! Delete it to proceed!");
-}
-
-
-$array = array();
-$file = fopen("../data/stores.csv", "r");
-
-
-while (($row = fgetcsv($file)) !== FALSE) {
-  // Read the data
-  $array[] = trim($row[1]);
-}
-// sort alphabetically
-sort($array);
-// remove last element of array
-$remove = array_pop($array);
-
-
-fclose($file);
-
-
-$chosen_letter = $_POST["chosen-letter"];
-$matched_store = [];
-$matched_number = [];
-
-foreach ($array as $v) {
-  $first_letter = strtolower(substr($v, 0, 1));
-  $first_number = substr($v, 0, 1);
-  if ($first_letter == $chosen_letter) {
-    $matched_store[] = $v;
-  }
-  if (is_numeric($first_number))  {
-    $matched_number[] = $v;
-  }
-}
-?>
+<?php require '../php/browse_letter_require.php';?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -66,30 +27,27 @@ foreach ($array as $v) {
       <input type="checkbox" id="menuToggle" />
       <label for="menuToggle" class="menu-icon"><i class="fa fa-bars"></i></label>
       <ul>
-        <a href="about.php">
-          <li>About us</li>
-        </a>
-        <a href="fees.html">
-          <li>Fees</li>
-        </a>
-        <a href="account/account.php">
-          <li>Account</li>
-        </a>
-        <a href="browse-menu.html">
-          <li>Browse</li>
-        </a>
-        <a href="faq.html">
-          <li>FAQs</li>
-        </a>
-        <a href="contact.html">
-          <li>Contact</li>
-        </a>
-        <a href="login-form.php">
-          <li>Sign in</li>
-        </a>
-        <a href="cart.php" id="cart">
-          <li>Cart</li>
-        </a>
+    php<a href="about.php"><li>About us</li></a>
+            <a href="fees.php"><li>Fees</li></a>
+            <a href="account/account.php"><li>Account</li></a>
+            <a href="browse-menu.php"><li>Browse</li></a>
+            <a href="faq.php"><li>FAQs</li></a>
+            <a href="contact.php"><li>Contact</li></a>
+            <a href="login-form.php"><li>Sign in</li></a>
+        <?php 
+            $cartNum = 0;
+            // if cart already exists
+            if (isset($_SESSION['cart']))
+            {
+                foreach ($_SESSION['cart'] as &$subCart) {
+                    $cartNum += $subCart[3];
+                }
+                echo '<a href="cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+            // if the array is empty
+            } else {
+                echo '<a href="cart.php" ><li>Cart</li></a>';
+            }
+        ?>
       </ul>
     </nav>
   </header>
@@ -133,48 +91,35 @@ foreach ($array as $v) {
     <div class="container">
       <!-- Store card row-->
       <div class="store-container">
-
         <?php
-
-        if($chosen_number = $_POST["chosen-number"]){
+        if ($chosen_number = $_POST["chosen-number"]) {
           for ($i = 0; $i < count($matched_number); $i++) {
-
             echo '<div class="store-card">';
             echo '<figure>';
-            echo '<a href="">';
+            echo '<a href="./store/Store_homepage.php?id='.$matched_number[$i][0].'">';
             echo '<img src="https://i.imgur.com/SPU418r.jpg" alt="store1" class="store-icon" />';
             echo '</a>';
             echo '</figure>';
             echo '<div class="store-name">';
-            echo $matched_number[$i];
+            echo $matched_number[$i][1];
             echo '</div>';
             echo '</div>';
           }
         }
-
-        
-        
-
         for ($i = 0; $i < count($matched_store); $i++) {
-
           echo '<div class="store-card">';
           echo '<figure>';
-          echo '<a href="">';
+          echo '<a href="./store/Store_homepage.php?id='.$matched_store[$i][0].'">';
           echo '<img src="https://i.imgur.com/SPU418r.jpg" alt="store1" class="store-icon" />';
           echo '</a>';
           echo '</figure>';
           echo '<div class="store-name">';
-          echo $matched_store[$i];
+          echo $matched_store[$i][1];
           echo '</div>';
           echo '</div>';
         }
         ?>
-
-
       </div>
-
-      
-
     </div>
     <!-- End store card row-->
     </div>
@@ -194,18 +139,18 @@ foreach ($array as $v) {
             <a href="about.php">About Us</a>
           </div>
           <div class="grid-item">
-            <a href="fees.html">Fees</a>
+            <a href="fees.php">Fees</a>
           </div>
-          <div class="grid-item"><a href="browse-menu.html">Browse</a></div>
+          <div class="grid-item"><a href="browse-menu.php">Browse</a></div>
           <div class="grid-item">
             <a href="term_of_services.php">Term of Service</a>
           </div>
           <div class="grid-item">
             <a href="account/account.php">Account</a>
           </div>
-          <div class="grid-item"><a href="faq.html">FAQs</a></div>
+          <div class="grid-item"><a href="faq.php">FAQs</a></div>
           <div class="grid-item">
-            <a href="contact.html">Contact</a>
+            <a href="contact.php">Contact</a>
           </div>
           <div class="grid-item">
             <a href="privacy_policies.php">Privacy Policy</a>

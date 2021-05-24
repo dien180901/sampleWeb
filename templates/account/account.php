@@ -1,11 +1,4 @@
-<?php
-session_start();
-error_reporting(E_ERROR | E_PARSE);
-
-if (fopen('../php/install.php', 'r') != null) {
-  exit("'install.php' still exists! Delete it to proceed!");
-}
-?>
+<?php require "../../php/account_require.php"?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,10 +12,9 @@ if (fopen('../php/install.php', 'r') != null) {
   <link rel="stylesheet" href="../../css/style.css" />
   <link rel="stylesheet" href="../../css/account/account.module.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
-  <script src="../../js/index.js"></script>
 </head>
 
-<body onload="displayUserInput();">
+<body>
   <!-- Navigation bar -->
   <header>
     <!-- Logo -->
@@ -38,27 +30,38 @@ if (fopen('../php/install.php', 'r') != null) {
         <a href="../about.php">
           <li>About us</li>
         </a>
-        <a href="../fees.html">
+        <a href="../fees.php">
           <li>Fees</li>
         </a>
-        <a href="../account/account.html">
+        <a href="account.php">
           <li>Account</li>
         </a>
-        <a href="../browse-menu.html">
+        <a href="../browse-menu.php">
           <li>Browse</li>
         </a>
-        <a href="../faq.html">
+        <a href="../faq.php">
           <li>FAQs</li>
         </a>
-        <a href="../contact.html">
+        <a href="../contact.php">
           <li>Contact</li>
         </a>
         <a href="../login-form.php">
           <li>Sign in</li>
         </a>
-        <a href="../cart.php" id="cart">
-          <li>Cart</li>
-        </a>
+        <?php 
+            $cartNum = 0;
+            // if cart already exists
+            if (isset($_SESSION['cart']))
+            {
+                foreach ($_SESSION['cart'] as &$subCart) {
+                    $cartNum += $subCart[3];
+                }
+                echo '<a href="../cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+            // if the array is empty
+            } else {
+                echo '<a href="../cart.php" ><li>Cart</li></a>';
+            }
+        ?>
       </ul>
     </nav>
   </header>
@@ -128,7 +131,7 @@ if (fopen('../php/install.php', 'r') != null) {
           <!--Password-->
           <p>Password</p>
           <div class="separator"></div>
-          <form>
+          <form method="post">
             <div class="personal_detail">
               <div></div>
               <div class="information_box">
@@ -136,7 +139,10 @@ if (fopen('../php/install.php', 'r') != null) {
                 <input class="information_text" type="password" name="password" id="password" />
               </div>
             </div>
-            <input type="submit" value="Save" class="submit_button" />
+            <div style="display: flex; justify-content: flex-start;">
+              <input type="submit" name="hit-button" value="Save" class="submit_button" />
+              <input type="submit" name="hit-button" value="Log Out" class="submit_button" />
+            </div>
           </form>
         </div>
       </div>
@@ -156,20 +162,20 @@ if (fopen('../php/install.php', 'r') != null) {
             <a href="../about.php">About Us</a>
           </div>
           <div class="grid-item">
-            <a href="../fees.html">Fees</a>
+            <a href="../fees.php">Fees</a>
           </div>
           <div class="grid-item">
-            <a href="../browse-menu.html">Browse</a>
+            <a href="../browse-menu.php">Browse</a>
           </div>
           <div class="grid-item">
             <a href="../term_of_services.php">Term of Service</a>
           </div>
           <div class="grid-item">
-            <a href="../account/account.html">Account</a>
+            <a href="account.php">Account</a>
           </div>
-          <div class="grid-item"><a href="../faq.html">FAQs</a></div>
+          <div class="grid-item"><a href="../faq.php">FAQs</a></div>
           <div class="grid-item">
-            <a href="../contact.html">Contact</a>
+            <a href="../contact.php">Contact</a>
           </div>
           <div class="grid-item">
             <a href="../privacy_policies.php">Privacy Policy</a>

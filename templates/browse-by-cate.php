@@ -1,61 +1,4 @@
-<?php
-session_start();
-error_reporting(E_ERROR | E_PARSE);
-if (fopen('../php/install.php', 'r') != null) {
-  exit("'install.php' still exists! Delete it to proceed!");
-}
-
-
-$store_name_array = array();
-$h = fopen("../data/stores.csv", "r");
-
-
-$row_store = 1;
-
-while (($row = fgetcsv($h)) !== FALSE) {
-  // Skip the first line
-  if ($row_store == 1) {
-    $row_store++;
-    continue;
-  }
-  // Read the data
-  $store_name_array[] = trim($row[1]);
-  $store_cate_id_array[] = trim($row[2]);
-}
-
-
-
-fclose($h);
-
-$path = "../data/categories.csv";
-$file = fopen($path, 'r');
-
-$row = 1;
-
-while (($data = fgetcsv($file)) !== FALSE) {
-  // Skip the first line
-  if ($row == 1) {
-    $row++;
-    continue;
-  }
-  // Add data to array
-  $category_name[] = trim($data[1]);
-}
-
-fclose($file);
-
-$chosen_index = array_search($_POST['categories'], $category_name) + 1;
-$count = 0;
-$browse_cate = [];
-foreach ($store_cate_id_array as $c) {
-  if ($c == $chosen_index) {
-    $browse_cate[] = $store_name_array[$count];
-  }
-  $count++;
-}
-
-
-?>
+<?php require '../php/browse_cate_require.php' ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -84,30 +27,27 @@ foreach ($store_cate_id_array as $c) {
       <input type="checkbox" id="menuToggle" />
       <label for="menuToggle" class="menu-icon"><i class="fa fa-bars"></i></label>
       <ul>
-        <a href="about.php">
-          <li>About us</li>
-        </a>
-        <a href="fees.html">
-          <li>Fees</li>
-        </a>
-        <a href="account/account.php">
-          <li>Account</li>
-        </a>
-        <a href="browse-menu.html">
-          <li>Browse</li>
-        </a>
-        <a href="faq.html">
-          <li>FAQs</li>
-        </a>
-        <a href="contact.html">
-          <li>Contact</li>
-        </a>
-        <a href="login-form.php">
-          <li>Sign in</li>
-        </a>
-        <a href="cart.php" id="cart">
-          <li>Cart</li>
-        </a>
+            <a href="about.php"><li>About us</li></a>
+            <a href="fees.php"><li>Fees</li></a>
+            <a href="account/account.php"><li>Account</li></a>
+            <a href="browse-menu.php"><li>Browse</li></a>
+            <a href="faq.php"><li>FAQs</li></a>
+            <a href="contact.php"><li>Contact</li></a>
+            <a href="login-form.php"><li>Sign in</li></a>
+        <?php 
+            $cartNum = 0;
+            // if cart already exists
+            if (isset($_SESSION['cart']))
+            {
+                foreach ($_SESSION['cart'] as &$subCart) {
+                    $cartNum += $subCart[3];
+                }
+                echo '<a href="cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+            // if the array is empty
+            } else {
+                echo '<a href="cart.php" ><li>Cart</li></a>';
+            }
+        ?>
       </ul>
     </nav>
   </header>
@@ -117,10 +57,10 @@ foreach ($store_cate_id_array as $c) {
   <div class="wrapper">
     <div class="drop-down-bar">
       <label id="browse">Browse by categories :</label>
-
-      <form method="post" action="" id="myForm">
+      <br><br>
+      <form method="post" action="browse-by-cate.php" id="myForm">
         <div class="select">
-          <select name="categories" onchange="onChange()" class="select-option">
+          <select name="categories" class="select-option">
             <option <?php if ($_POST['categories'] == 'Department stores') echo 'selected'; ?>>Department stores</option>
             <option <?php if ($_POST['categories'] == 'Grocery stores') echo 'selected'; ?>>Grocery stores</option>
             <option <?php if ($_POST['categories'] == 'Restaurants') echo 'selected'; ?>>Restaurants</option>
@@ -136,6 +76,7 @@ foreach ($store_cate_id_array as $c) {
             <option <?php if ($_POST['categories'] == 'Kiosks') echo 'selected'; ?>>Kiosks</option>
           </select>
         </div>
+        <input type="submit" name="hit-button" value="Submit" id="submit-browse-button">
       </form>
     </div>
   </div>
@@ -146,16 +87,15 @@ foreach ($store_cate_id_array as $c) {
       <div class="store-container">
 
         <?php
-
         for ($i = 0; $i < count($browse_cate); $i++) {
           echo '<div class="store-card">';
           echo '<figure>';
-          echo '<a href="">';
+          echo '<a href="./store/Store_homepage.php?id='.$browse_cate[$i][0].'">';
           echo '<img src="https://i.imgur.com/SPU418r.jpg" alt="store1" class="store-icon" />';
           echo '</a>';
           echo '</figure>';
           echo '<div class="store-name">';
-          echo $browse_cate[$i];
+          echo $browse_cate[$i][1];
           echo '</div>';
           echo '</div>';
         }
@@ -180,18 +120,18 @@ foreach ($store_cate_id_array as $c) {
             <a href="about.php">About Us</a>
           </div>
           <div class="grid-item">
-            <a href="fees.html">Fees</a>
+            <a href="fees.php">Fees</a>
           </div>
-          <div class="grid-item"><a href="browse-menu.html">Browse</a></div>
+          <div class="grid-item"><a href="browse-menu.php">Browse</a></div>
           <div class="grid-item">
             <a href="term_of_services.php">Term of Service</a>
           </div>
           <div class="grid-item">
             <a href="account/account.php">Account</a>
           </div>
-          <div class="grid-item"><a href="faq.html">FAQs</a></div>
+          <div class="grid-item"><a href="faq.php">FAQs</a></div>
           <div class="grid-item">
-            <a href="contact.html">Contact</a>
+            <a href="contact.php">Contact</a>
           </div>
           <div class="grid-item">
             <a href="privacy_policies.php">Privacy Policy</a>

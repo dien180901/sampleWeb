@@ -1,18 +1,15 @@
 <?php
-	session_start();
+	// check session status and start session 
+	if ( empty(session_id()) ) session_start();
 
+	// detect install.php
 	error_reporting(E_ERROR | E_PARSE);
 	if (fopen('../php/install.php', 'r') != null) {
-		exit("'install.php' still exists! Delete it to proceed!");
-	} 
-
-	if (isset($_SESSION['a-product-added'])) {
-		unset($_SESSION['a-product-added']);
+	exit("'install.php' still exists! Delete it to proceed!");
 	}
 
-	if (isset($_SESSION['last-visited-product'])) {
-		unset($_SESSION['last-visited-product']);
-	}
+	// clear cart on check out
+	if(isset($_SESSION['cart'])) unset($_SESSION['cart']);
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +29,7 @@
     />
   </head>
 
-  <body onmouseover="window.localStorage.removeItem('cart');window.localStorage.removeItem('totalCost')">
+  <body>
     <!-- Navigation bar -->
     <header>
       <!-- Logo -->
@@ -52,30 +49,27 @@
           ><i class="fa fa-bars"></i
         ></label>
         <ul>
-          <a href="about.php">
-            <li>About us</li>
-          </a>
-          <a href="fees.html">
-            <li>Fees</li>
-          </a>
-          <a href="account/account.php">
-            <li>Account</li>
-          </a>
-          <a href="browse-menu.html">
-            <li>Browse</li>
-          </a>
-          <a href="faq.html">
-            <li>FAQs</li>
-          </a>
-          <a href="contact.html">
-            <li>Contact</li>
-          </a>
-          <a href="login-form.php">
-            <li>Sign in</li>
-          </a>
-          <a href="cart.php" style="color: red" id="cart">
-            <li>Cart</li>
-          </a>
+          <a href="about.php"><li>About us</li></a>
+          <a href="fees.php"><li>Fees</li></a>
+          <a href="account/account.php"><li>Account</li></a>
+          <a href="browse-menu.php"><li>Browse</li></a>
+          <a href="faq.php"><li>FAQs</li></a>
+          <a href="contact.php"><li>Contact</li></a>
+          <a href="login-form.php"><li>Sign in</li></a>
+          <?php 
+              $cartNum = 0;
+              // if cart already exists
+              if (isset($_SESSION['cart']))
+              {
+                  foreach ($_SESSION['cart'] as &$subCart) {
+                      $cartNum += $subCart[3];
+                  }
+                  echo '<a href="cart.php" style="color:red;"><li>Cart: <span>'.$cartNum.'</span></li></a>';
+              // if the array is empty
+              } else {
+                  echo '<a href="cart.php" ><li>Cart</li></a>';
+              }
+          ?>
         </ul>
       </nav>
     </header>
